@@ -2,4 +2,12 @@ package com.mevi.flowstate
 
 import androidx.compose.ui.window.ComposeUIViewController
 
-fun MainViewController() = ComposeUIViewController { App() }
+private var koinStarted = false
+
+fun MainViewController() = ComposeUIViewController {
+    if (!koinStarted) {
+        initKoin()
+        koinStarted = true
+    }
+    App()
+}

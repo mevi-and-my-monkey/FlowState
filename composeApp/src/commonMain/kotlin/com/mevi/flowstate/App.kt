@@ -1,47 +1,52 @@
 package com.mevi.flowstate
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.vector.ImageVector
+import com.mevi.flowstate.ui.notes.NoteScreen
+import com.mevi.flowstate.ui.pomodoro.PomodoroScreen
+import org.koin.compose.KoinContext
 
-import flowstate.composeapp.generated.resources.Res
-import flowstate.composeapp.generated.resources.compose_multiplatform
+data class NavItem(val screen: Screen, val icon: ImageVector)
 
+sealed class Screen(val title: String) {
+    object Notes : Screen("Notes")
+    object Pomodoro : Screen("Pomodoro")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
+    val navItems = listOf(
+        NavItem(Screen.Notes, Icons.Default.Create),
+        NavItem(Screen.Pomodoro, Icons.Default.Timer)
+    )
+    var currentScreen: Screen by remember { mutableStateOf(Screen.Notes) }
+
+    KoinContext {
+        Scaffold(
+            bottomBar = {
+                NavigationBar {
+                    navItems.forEach { item ->
+                        NavigationBarItem(
+                            icon = { Icon(item.icon, contentDescription = item.screen.title) },
+                            label = { Text(item.screen.title) },
+                            selected = currentScreen == item.screen,
+                            onClick = { currentScreen = item.screen }
+                        )
+                    }
+                }
             }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+        ) { innerPadding ->
+            Surface(modifier = Modifier.padding(innerPadding)) {
+                when (currentScreen) {
+                    is Screen.Notes -> NoteScreen()
+                    is Screen.Pomodoro -> PomodoroScreen()
                 }
             }
         }

@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		790768572F00834900D705DB /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 790768562F0082A400D705DB /* libsqlite3.tbd */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		790768562F0082A400D705DB /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		CBDD6D1E721A5569040AE4F0 /* FlowState.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlowState.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -41,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				790768572F00834900D705DB /* libsqlite3.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,11 +61,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		790768552F0082A300D705DB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				790768562F0082A400D705DB /* libsqlite3.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		8296D45EEC30F11ADF8BA89F = {
 			isa = PBXGroup;
 			children = (
 				6781D81F6802AA719A671C8D /* Configuration */,
 				9A3984E46A9458E1BC2DA6AD /* iosApp */,
+				790768552F0082A300D705DB /* Frameworks */,
 				2A6226FC9DB0183FCC413E77 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -137,7 +152,6 @@
 /* Begin PBXShellScriptBuildPhase section */
 		833ABFBCC1CC1881579D5B5F /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
