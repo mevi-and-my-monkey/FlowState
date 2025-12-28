@@ -1,32 +1,60 @@
 package com.mevi.flowstate.ui.timeevent
 
-import app.cash.sqldelight.coroutines.asFlow
-import app.cash.sqldelight.coroutines.mapToList
+import com.mevi.flowstate.core.TimeProvider
 import com.mevi.flowstate.db.AppDatabase
 import com.mevi.flowstate.db.TimeEvent
 import com.mevi.flowstate.ui.ViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Instant
 
-class TimeEventViewModel(private val appDatabase: AppDatabase) : ViewModel() {
+class TimeEventViewModel(private val database: AppDatabase) : ViewModel() {
 
-    val timeEvents: StateFlow<List<TimeEvent>> = appDatabase.timeEventQueries.selectAll()
-        .asFlow()
-        .mapToList(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _timeEvents = MutableStateFlow<List<TimeEvent>>(emptyList())
+    val timeEvents = _timeEvents.asStateFlow()
 
-    fun addTimeEvent(name: String, date: Long, isCountdown: Boolean) {
+    init {
+        loadTimeEvents()
+    }
+
+    fun loadTimeEvents() {
         viewModelScope.launch {
-            appDatabase.timeEventQueries.insert(name, date, if (isCountdown) 1L else 0L)
+            _timeEvents.value = database.timeEventQueries.selectAll().executeAsList()
+        }
+    }
+
+    fun createTimeEvent(title: String, targetDate: String, type: String) {
+        viewModelScope.launch {
+            database.timeEventQueries.insert(title, targetDate, type)
+            loadTimeEvents()
         }
     }
 
     fun deleteTimeEvent(id: Long) {
         viewModelScope.launch {
-            appDatabase.timeEventQueries.delete(id)
+            database.timeEventQueries.delete(id)
+            loadTimeEvents()
+        }
+    }
+
+    fun getFormattedDate(timeEvent: TimeEvent): String {
+        val fixedDate = timeEvent.targetDate.replace(" ", "")
+        val targetInstant = Instant.parse(fixedDate)
+        val now = TimeProvider.now()
+
+        val difference = if (timeEvent.type == "UNTIL") {
+            targetInstant - now
+        } else {
+            now - targetInstant
+        }
+
+        val days = difference.inWholeDays
+
+        return if (timeEvent.type == "UNTIL") {
+            if (days >= 0) "Faltan $days días" else "-"
+        } else {
+            "Han pasado $days días"
         }
     }
 }
